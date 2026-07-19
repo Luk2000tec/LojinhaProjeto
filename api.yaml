@@ -1,0 +1,738 @@
+openapi: 3.0.2
+info:
+    title: Lojinha
+    version: 1.0.0
+paths:
+    /venda:
+        get:
+            parameters:
+                -
+                    name: inicio
+                    schema:
+                        format: date
+                        type: string
+                    in: query
+                -
+                    name: fim
+                    schema:
+                        format: date
+                        type: string
+                    in: query
+                -
+                    name: vendedor
+                    schema:
+                        minimum: 0
+                        type: integer
+                    in: query
+                -
+                    name: pagina
+                    schema:
+                        minimum: 0
+                        type: integer
+                    in: query
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/venda2'
+                    description: Ok
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Requisição inválida. Formato de data ou parâmetros incorretos.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. O usuário não tem permissão para listar vendas.
+            security:
+                -
+                    bearer: []
+            summary: Listar vendas
+        post:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/venda1'
+                required: true
+            responses:
+                '201':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/venda2'
+                    description: Created
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Dados inválidos. Produto ou quantidade informados incorretamente.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+            security:
+                -
+                    bearer: []
+            summary: Registrar uma venda
+    '/venda/{codigo}':
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/venda2'
+                    description: Ok
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Código da venda em formato inválido.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. O usuário não tem permissão para visualizar esta venda.
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Venda não encontrada.
+            security:
+                -
+                    bearer: []
+            summary: Obter dados de uma venda específica
+        delete:
+            responses:
+                '204':
+                    description: No Content
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Código da venda em formato inválido.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. O usuário não tem permissão para excluir vendas.
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Venda não encontrada.
+            security:
+                -
+                    bearer: []
+            summary: Excluir uma venda
+        parameters:
+            -
+                $ref: '#/components/parameters/codigo'
+    '/venda/{codigo}/extorno':
+        put:
+            parameters:
+                -
+                    $ref: '#/components/parameters/codigo'
+            responses:
+                '200':
+                    description: Estorno realizado com sucesso.
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Código da venda em formato inválido.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. Usuário sem permissão para realizar estornos.
+                '409':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Conflito. Esta venda já foi estornada anteriormente.
+                '422':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Entidade improcessável. Regras de negócio impedem o estorno (ex. prazo expirado).
+            security:
+                -
+                    bearer: []
+            summary: Realizar estorno de venda
+    /funcionario/:
+        put:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/funcionario'
+                    description: Funcionário atualizado com sucesso.
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Requisição inválida. O campo 'id' está ausente ou em formato inválido dentro do JSON.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. O usuário não tem permissão de administrador para atualizar funcionários.
+                '409':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Conflito. Dados informados (como CPF) já estão em uso por outro funcionário.
+            security:
+                -
+                    bearer: []
+            summary: Atualizar funcionário
+        post:
+            responses:
+                '201':
+                    description: Funcionário cadastrado com sucesso.
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Requisição inválida. JSON malformado ou campos obrigatórios ausentes.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Não autorizado. Token de autenticação ausente ou inválido.
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. Apenas administradores ou profissionais de RH podem cadastrar funcionários.
+                '409':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Conflito. O CPF informado já está cadastrado ou IDs de cargo/departamento não existem.
+            security:
+                -
+                    bearer: []
+            summary: Cadastrar funcionário
+    /funcionario/autenticacao/:
+        post:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/autenticacao'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/token'
+                    description: Autenticação bem-sucedida. Token retornado.
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Requisição inválida. Campos 'usuario' ou 'senha' ausentes ou incorretos.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Credenciais inválidas. Usuário ou senha incorretos.
+            summary: Autenticar funcionário (Login)
+    /funcionario/autenticacao/renovacao:
+        post:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/token'
+                    description: Token renovado com sucesso.
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: >-
+                        Requisição inválida. O Refresh Token não foi enviado no cabeçalho, cookies ou corpo da
+                        requisição.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: >-
+                        Token inválido ou revogado. A sessão foi encerrada, a senha alterada ou o usuário foi
+                        banido.
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: >-
+                        Suspeita de fraude. Tentativa de reuso de um Refresh Token antigo (Quebra de Rotação).
+                        Toda a família de tokens foi invalidada.
+            security:
+                -
+                    bearer: []
+            summary: Renovar token (Refresh Token)
+    '/funcionario/{codigo}':
+        get:
+            parameters:
+                -
+                    $ref: '#/components/parameters/codigo'
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/funcionario'
+                    description: Ok
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: O código enviado na URL está em formato incorreto (esperava-se um número inteiro).
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: >-
+                        Proibido. O usuário não possui perfil de gerente e está tentando acessar dados de
+                        outro funcionário.
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Funcionário não encontrado no banco de dados.
+            security:
+                -
+                    bearer: []
+            summary: Buscar funcionário por código
+    /produto/:
+        get:
+            parameters:
+                -
+                    name: caracteristicas
+                    schema:
+                        type: string
+                    in: query
+                -
+                    name: pagina
+                    schema:
+                        minimum: 0
+                        type: integer
+                    in: query
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/produto1'
+                    description: Ok
+            summary: Listar produtos
+        post:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/produto2'
+                required: true
+            responses:
+                '201':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/produto3'
+                    description: Created
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: >-
+                        Dados inválidos. Verifique se os campos obrigatórios e os limites de preço/comissão
+                        foram respeitados.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. Usuário não possui permissão para cadastrar produtos.
+                '409':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: >-
+                        Conflito. Já existe um produto cadastrado com esta mesma descrição ou código
+                        identificador.
+            security:
+                -
+                    bearer: []
+            summary: Cadastrar novo produto
+    '/produto/{codigo}/':
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/produto1'
+                    description: Ok
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Código do produto enviado em formato inválido.
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Produto não encontrado.
+            summary: Obter dados de um produto específico
+        put:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/produto2'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/produto3'
+                    description: Ok
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Requisição inválida. Verifique o corpo do JSON ou o código na URL.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. Usuário sem permissão para editar produtos.
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Produto não encontrado para atualização.
+            security:
+                -
+                    bearer: []
+            summary: Atualizar dados de um produto
+        parameters:
+            -
+                $ref: '#/components/parameters/codigo'
+    '/produto/{codigo}/entrada/{quantidade}/':
+        put:
+            parameters:
+                -
+                    $ref: '#/components/parameters/codigo'
+                -
+                    $ref: '#/components/parameters/quantidade'
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/produto3'
+                    description: Estoque atualizado com sucesso.
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Parâmetros inválidos. A quantidade deve ser um número inteiro igual ou maior que 1.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. Usuário sem permissão para movimentar estoque.
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Produto não encontrado.
+            security:
+                -
+                    bearer: []
+            summary: Dar entrada no estoque de um produto
+    '/produto/{codigo}/saida/{quantidade}/':
+        put:
+            parameters:
+                -
+                    $ref: '#/components/parameters/codigo'
+                -
+                    $ref: '#/components/parameters/quantidade'
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/produto3'
+                    description: Estoque atualizado com sucesso.
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Parâmetros inválidos. A quantidade deve ser um número inteiro igual ou maior que 1.
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: 'Não autorizado. Token ausente, inválido ou expirado.'
+                '403':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Proibido. Usuário sem permissão para movimentar estoque.
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                    description: Produto não encontrado ou quantidade de saída é maior do que o estoque disponível.
+            security:
+                -
+                    bearer: []
+            summary: Dar saída no estoque de um produto
+components:
+    schemas:
+        autenticacao:
+            required:
+                - usuario
+                - senha
+            type: object
+            properties:
+                usuario:
+                    minimum: 0
+                    type: integer
+                senha:
+                    type: string
+        token:
+            type: object
+            properties:
+                token:
+                    type: string
+        produto1:
+            type: object
+            properties:
+                descricao:
+                    type: string
+                preco:
+                    type: number
+                quantidade:
+                    type: integer
+        produto2:
+            required:
+                - descricao
+                - preco
+                - comissao
+            type: object
+            properties:
+                descricao:
+                    type: string
+                preco:
+                    minimum: 0.01
+                    type: number
+                comissao:
+                    maximum: 100
+                    minimum: 0
+                    type: number
+        produto3:
+            type: object
+            properties:
+                codigo:
+                    type: integer
+                descricao:
+                    type: string
+                preco:
+                    type: number
+                quantidade:
+                    type: integer
+                comissao:
+                    type: number
+        venda1:
+            required:
+                - produto
+                - quantidade
+            type: object
+            properties:
+                produto:
+                    type: integer
+                quantidade:
+                    minimum: 1
+                    type: integer
+        venda2:
+            type: object
+            properties:
+                codigo:
+                    type: integer
+                vendedor:
+                    type: integer
+                produto:
+                    type: integer
+                quando:
+                    format: date-time
+                    type: string
+                quantidade:
+                    type: integer
+        funcionario:
+            title: Root Type for funcionario
+            description: ''
+            type: array
+            items:
+                type: object
+                properties:
+                    nome:
+                        type: string
+                    salario:
+                        format: int32
+                        type: integer
+                    senha:
+                        type: string
+                    papel:
+                        type: string
+            example:
+                -
+                    nome: João Silva
+                    salario: 3500
+                    senha: '123456'
+                    papel: '1'
+                -
+                    nome: Maria Oliveira
+                    salario: 4200
+                    senha: abc123
+                    papel: '1'
+                -
+                    nome: Carlos Souza
+                    salario: 5000
+                    senha: senha789
+                    papel: '3'
+    parameters:
+        codigo:
+            name: codigo
+            schema:
+                minimum: 0
+                type: integer
+            in: path
+            required: true
+        quantidade:
+            name: quantidade
+            schema:
+                minimum: 1
+                type: integer
+            in: path
+            required: true
+    securitySchemes:
+        bearer:
+            scheme: bearer
+            bearerFormat: JWT
+            type: http
+
